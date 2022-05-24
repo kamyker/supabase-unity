@@ -2,7 +2,7 @@
 
 string appDir = Environment.CurrentDirectory;
 var repoDir = Directory.GetParent(appDir).Parent.Parent.Parent.Parent;
-var submodulesDirPath = Path.Combine(repoDir.FullName, "Submodules");
+var submodulesDirPath = Path.Combine(repoDir.FullName, "Submodules~");
 if(!Directory.Exists(submodulesDirPath))
 	throw new Exception($"Something went wrong, directory doesn't exists: {submodulesDirPath}");
 
@@ -68,14 +68,15 @@ await File.WriteAllTextAsync(Path.Combine(unityDirPath, "Supabase.asmdef"), asmd
 // create dlls packages
 var buildDir = new DirectoryInfo(Path.Combine(repoDir.FullName, ".build"));
 
-var unityDllsPath = Path.Combine(repoDir.FullName, "UnityDlls");
+
+var unityDllsPath = Path.Combine(repoDir.FullName, "UnityDlls~");
 if(Directory.Exists(unityDllsPath))
 	Directory.Delete(unityDllsPath, true);
 
 foreach(var file in buildDir.EnumerateFiles("*.dll"))
 {
 	var nameWithoutExt = Path.GetFileNameWithoutExtension(file.Name);
-	var destPath = Path.Combine(repoDir.FullName, "UnityDlls", nameWithoutExt);
+	var destPath = Path.Combine(repoDir.FullName, "UnityDlls~", nameWithoutExt);
 	Directory.CreateDirectory(destPath);
 	file.CopyTo(Path.Combine(destPath, file.Name));
 	var packageJsonPath = Path.Combine(destPath, "package.json");
