@@ -1,4 +1,5 @@
-<h3 align="center">Stage: Init</h3>
+<h3 align="center">Stage: Alpha</h3>
+<h4 align="center">(Unity 2021+ Mono/Il2cpp)</h3>
 
 ---
 
@@ -37,3 +38,11 @@ https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Runtime.Com
 https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.Channels
 https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.Tasks.Extensions
 ```
+
+---
+
+## Common issues
+### Il2cpp
+You may encounter runtime errors: "ExecutionEngineException: Attempting to call method (...) for which no ahead of time (AOT) code was generated.  Consider increasing the --generic-virtual-method-iterations=1 argument."
+
+This post describe how to fix it in Unity 2021 https://github.com/SixLabors/ImageSharp/issues/1703#issuecomment-896900448
