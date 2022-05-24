@@ -1,18 +1,3 @@
 [submodule "Submodules/supabase-csharp"]
 	path = Submodules/supabase-csharp
 	url = https://github.com/supabase-community/supabase-csharp.git
-[submodule "Submodules/postgrest-csharp"]
-	path = Submodules/postgrest-csharp
-	url = https://github.com/supabase-community/postgrest-csharp.git
-[submodule "Submodules/gotrue-csharp"]
-	path = Submodules/gotrue-csharp
-	url = https://github.com/supabase-community/gotrue-csharp.git
-[submodule "Submodules/realtime-csharp"]
-	path = Submodules/realtime-csharp
-	url = https://github.com/supabase-community/realtime-csharp.git
-[submodule "Submodules/storage-csharp"]
-	path = Submodules/storage-csharp
-	url = https://github.com/supabase-community/storage-csharp.git
-[submodule "Submodules/functions-csharp"]
-	path = Submodules/functions-csharp
-	url = https://github.com/supabase-community/functions-csharp.git
