@@ -80,5 +80,5 @@ foreach(var file in buildDir.EnumerateFiles("*.dll"))
 	Directory.CreateDirectory(destPath);
 	file.CopyTo(Path.Combine(destPath, file.Name));
 	var packageJsonPath = Path.Combine(destPath, "package.json");
-	await File.WriteAllTextAsync(packageJsonPath, packageJsonTemplate.Replace("name_replace", $"com.supabase.dll.{nameWithoutExt}"));
+	await File.WriteAllTextAsync(packageJsonPath, packageJsonTemplate.Replace("name_replace", $"com.supabase.dll.{nameWithoutExt.ToLowerInvariant()}"));
 }
