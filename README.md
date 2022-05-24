@@ -1,5 +1,5 @@
 <h3 align="center">Stage: Alpha</h3>
-<h4 align="center">(Unity 2021+ Mono/Il2cpp)</h3>
+<h5 align="center">(Tested in Unity 2021+ Windows Mono/Il2cpp)</h5>
 
 ---
 
