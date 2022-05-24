@@ -45,7 +45,7 @@ https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.T
 ### Il2cpp
 You may encounter runtime errors: "ExecutionEngineException: Attempting to call method (...) for which no ahead of time (AOT) code was generated.  Consider increasing the --generic-virtual-method-iterations=1 argument."
 
-This post describe how to fix it in Unity 2021 https://github.com/SixLabors/ImageSharp/issues/1703#issuecomment-896900448
+This post describe how to fix it https://github.com/SixLabors/ImageSharp/issues/1703#issuecomment-896900448 . Worth saying that in Unity 2022+ this error should be completely fixed.
 
 ### Platforms other than Windows
 Possible there may be errors because of use of System.Reactive by Websocket.Client. Here's a dll without WindowsRuntiem dependency: https://drive.google.com/file/d/1dvO7GXPpXBWS9zQmmTmD2rAOayrSGW_1/view?usp=sharing . Try this dll instead of package above if you get any errors.
