@@ -1,0 +1,5 @@
+.build/
+Builder/.idea/
+Builder/SupabaseUnityBuilder/bin/
+Builder/SupabaseUnityBuilder/obj/
+Builder/SupabaseUnityBuilder/.idea/
