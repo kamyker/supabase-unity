@@ -9,7 +9,7 @@ Combined [spabase-csharp repo](https://github.com/supabase-community/supabase-cs
 ## Installation
 
 ### Install via git URL
-In Unity click Package Manager => "+" button -> Install via git URL
+In Unity click Package Manager -> "+" -> Install via git URL
 
 You can install cs files only: https://github.com/kamyker/supabase-unity.git?path=Unity
 
