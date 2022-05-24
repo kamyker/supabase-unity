@@ -46,3 +46,6 @@ https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.T
 You may encounter runtime errors: "ExecutionEngineException: Attempting to call method (...) for which no ahead of time (AOT) code was generated.  Consider increasing the --generic-virtual-method-iterations=1 argument."
 
 This post describe how to fix it in Unity 2021 https://github.com/SixLabors/ImageSharp/issues/1703#issuecomment-896900448
+
+### Platforms other than Windows
+Possible there may be errors because of use of System.Reactive by Websocket.Client. I made net standard 2.0 without WindowsRuntiem dependency that can be download here https://drive.google.com/file/d/1dvO7GXPpXBWS9zQmmTmD2rAOayrSGW_1/view?usp=sharing . Try this files instead of packages above if you get any errors.
