@@ -23,4 +23,17 @@ error CS0246: The type or namespace name 'WebsocketClient' could not be found
 (are you missing a using directive or an assembly reference?)
 ```
 
-Means you have to install https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/Websocket.Client (via git URL in package manager). Check .UnityDlls folder in this repo to see what dlls are available.
+Means you have to install https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/Websocket.Client (via git URL in package manager). 
+
+Dlls list (may be incomplete check .UnityDlls folder for more):
+
+```
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/Websocket.Client
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Reactive
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/Newtonsoft.Json
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/MimeMapping
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Runtime.InteropServices.WindowsRuntime
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Runtime.CompilerServices.Unsafe
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.Channels
+https://github.com/kamyker/supabase-unity.git?path=.UnityDlls/System.Threading.Tasks.Extensions
+```
