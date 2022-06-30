@@ -9,10 +9,17 @@ if(!Directory.Exists(submodulesDirPath))
 var unityDirPath = Path.Combine(repoDir.FullName, "Unity");
 var unityDir = new DirectoryInfo(unityDirPath);
 var supClonedDirPath = Path.Combine(unityDirPath, "supabase-cloned");
-
+Console.WriteLine(supClonedDirPath);
 // make sure we aren't deleting random "Unity" folder
 if(Directory.Exists(supClonedDirPath))
-	unityDir.Delete(true);
+{
+	// unityDir.Delete(true); - this was bad as meta files shouldn't be deleted
+	var filesToDelete = Directory.GetFiles(supClonedDirPath, "*.cs", SearchOption.AllDirectories);
+	foreach(string delPath in filesToDelete)
+	{
+		File.Delete(delPath);
+	}
+}
 unityDir.Create();
 Directory.CreateDirectory(supClonedDirPath);
 
@@ -71,7 +78,14 @@ var buildDir = new DirectoryInfo(Path.Combine(repoDir.FullName, ".build"));
 
 var unityDllsPath = Path.Combine(repoDir.FullName, ".UnityDlls");
 if(Directory.Exists(unityDllsPath))
-	Directory.Delete(unityDllsPath, true);
+{
+	// Directory.Delete(unityDllsPath, true);
+	var filesToDelete = Directory.GetFiles(unityDllsPath, "*.dll", SearchOption.AllDirectories);
+	foreach(string delPath in filesToDelete)
+	{
+		File.Delete(delPath);
+	}
+}
 
 foreach(var file in buildDir.EnumerateFiles("*.dll"))
 {
