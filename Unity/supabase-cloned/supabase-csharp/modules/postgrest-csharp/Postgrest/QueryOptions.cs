@@ -53,8 +53,12 @@ namespace Postgrest
         /// <summary>
         /// If the record should be upserted
         /// </summary>
-        public bool Upsert { get; set; } = false;
+        public bool Upsert { get; set; }
 
+        /// <summary>
+        /// /// By specifying the onConflict query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+        /// </summary>
+        public string OnConflict { get; set; }
 
         public Dictionary<string, string> ToHeaders()
         {

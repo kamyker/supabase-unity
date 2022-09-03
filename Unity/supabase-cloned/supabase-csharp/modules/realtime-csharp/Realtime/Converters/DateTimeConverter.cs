@@ -4,9 +4,9 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Postgrest.Converters
+namespace Supabase.Realtime.Converters
 {
-    public class DateTimeConverter : JsonConverter
+    internal class DateTimeConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -26,10 +26,10 @@ namespace Postgrest.Converters
                 var str = reader.Value.ToString();
 
                 var infinity = ParseInfinity(str);
-                
+
                 if (infinity != null)
                 {
-                    return (DateTime) infinity;
+                    return (DateTime)infinity;
                 }
 
                 var date = DateTime.Parse(str);
@@ -47,10 +47,10 @@ namespace Postgrest.Converters
                     var inner = item.ToString();
 
                     var infinity = ParseInfinity(inner);
-                    
+
                     if (infinity != null)
                     {
-                        result.Add((DateTime) infinity);
+                        result.Add((DateTime)infinity);
                     }
 
                     var date = DateTime.Parse(inner);

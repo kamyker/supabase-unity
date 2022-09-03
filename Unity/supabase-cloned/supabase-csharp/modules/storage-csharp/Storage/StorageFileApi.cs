@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Supabase.Storage.Extensions;
 
 namespace Supabase.Storage
 {
@@ -54,7 +56,7 @@ namespace Supabase.Storage
             var body = new Dictionary<string, object> { { "expiresIn", expiresIn }, { "paths", paths } };
             var response = await Helpers.MakeRequest<List<CreateSignedUrlsResponse>>(HttpMethod.Post, $"{Url}/object/sign/{BucketId}", body, Headers);
 
-            foreach(var item in response)
+            foreach (var item in response)
             {
                 item.SignedUrl = $"{Url}{item.SignedUrl}";
             }
@@ -98,7 +100,7 @@ namespace Supabase.Storage
         /// <param name="supabasePath">The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.</param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public async Task<string> Upload(string localFilePath, string supabasePath, FileOptions options = null, UploadProgressChangedEventHandler onProgress = null, bool inferContentType = true)
+        public async Task<string> Upload(string localFilePath, string supabasePath, FileOptions options = null, EventHandler<float> onProgress = null, bool inferContentType = true)
         {
             if (options == null)
             {
@@ -121,7 +123,7 @@ namespace Supabase.Storage
         /// <param name="supabasePath">The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.</param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public async Task<string> Upload(byte[] data, string supabasePath, FileOptions options = null, UploadProgressChangedEventHandler onProgress = null, bool inferContentType = true)
+        public async Task<string> Upload(byte[] data, string supabasePath, FileOptions options = null, EventHandler<float> onProgress = null, bool inferContentType = true)
         {
             if (options == null)
             {
@@ -144,14 +146,14 @@ namespace Supabase.Storage
         /// <param name="supabasePath">The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.</param>
         /// <param name="options">HTTP headers.</param>
         /// <returns></returns>
-        public async Task<string> Update(string localFilePath, string supabasePath, FileOptions options = null, UploadProgressChangedEventHandler onProgress = null)
+        public async Task<string> Update(string localFilePath, string supabasePath, FileOptions options = null, EventHandler<float> onProgress = null)
         {
             if (options == null)
             {
                 options = new FileOptions();
             }
 
-            var result = await UploadOrUpdate(localFilePath, supabasePath, options);
+            var result = await UploadOrUpdate(localFilePath, supabasePath, options, onProgress);
             return result;
         }
 
@@ -162,14 +164,14 @@ namespace Supabase.Storage
         /// <param name="supabasePath">The relative file path. Should be of the format `folder/subfolder/filename.png`. The bucket must already exist before attempting to upload.</param>
         /// <param name="options">HTTP headers.</param>
         /// <returns></returns>
-        public async Task<string> Update(byte[] data, string supabasePath, FileOptions options = null, UploadProgressChangedEventHandler onProgress = null)
+        public async Task<string> Update(byte[] data, string supabasePath, FileOptions options = null, EventHandler<float> onProgress = null)
         {
             if (options == null)
             {
                 options = new FileOptions();
             }
 
-            var result = await UploadOrUpdate(data, supabasePath, options);
+            var result = await UploadOrUpdate(data, supabasePath, options, onProgress);
             return result;
         }
 
@@ -200,32 +202,28 @@ namespace Supabase.Storage
         /// <param name="localPath"></param>
         /// <param name="onProgress"></param>
         /// <returns></returns>
-        public Task<string> Download(string supabasePath, string localPath, DownloadProgressChangedEventHandler onProgress = null)
+        public async Task<string> Download(string supabasePath, string localPath, EventHandler<float> onProgress = null)
         {
-            var tsc = new TaskCompletionSource<string>();
-
-            try
+            using (HttpClient client = new HttpClient())
             {
-                WebClient client = new WebClient();
                 Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
 
-                foreach (var header in Headers)
-                    client.Headers.Add(header.Key, header.Value);
+                var progress = new Progress<float>();
 
                 if (onProgress != null)
-                    client.DownloadProgressChanged += onProgress;
+                {
+                    progress.ProgressChanged += onProgress;
+                }
 
+                var stream = await client.DownloadDataAsync(uri, Headers, progress);
 
-                client.DownloadFileCompleted += (sender, args) => tsc.SetResult(localPath);
+                using (var outstream = new FileStream(localPath, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    stream.WriteTo(outstream);
+                }
 
-                client.DownloadFileAsync(uri, localPath);
+                return localPath;
             }
-            catch (Exception ex)
-            {
-                tsc.SetException(ex);
-            }
-
-            return tsc.Task;
         }
 
         /// <summary>
@@ -234,32 +232,23 @@ namespace Supabase.Storage
         /// <param name="supabasePath"></param>
         /// <param name="onProgress"></param>
         /// <returns></returns>
-        public Task<byte[]> Download(string supabasePath, DownloadProgressChangedEventHandler onProgress = null)
+        public async Task<byte[]> Download(string supabasePath, EventHandler<float> onProgress = null)
         {
-            var tsc = new TaskCompletionSource<byte[]>();
-
-            try
+            using (HttpClient client = new HttpClient())
             {
-                WebClient client = new WebClient();
                 Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
 
-                foreach (var header in Headers)
-                    client.Headers.Add(header.Key, header.Value);
+                var progress = new Progress<float>();
 
                 if (onProgress != null)
-                    client.DownloadProgressChanged += onProgress;
+                {
+                    progress.ProgressChanged += onProgress;
+                }
 
+                var stream = await client.DownloadDataAsync(uri, Headers, progress);
 
-                client.DownloadDataCompleted += (sender, args) => tsc.SetResult(args.Result);
-
-                client.DownloadDataAsync(uri);
+                return stream.ToArray();
             }
-            catch (Exception ex)
-            {
-                tsc.SetException(ex);
-            }
-
-            return tsc.Task;
         }
 
         /// <summary>
@@ -275,85 +264,62 @@ namespace Supabase.Storage
             return response;
         }
 
-        private Task<string> UploadOrUpdate(string localPath, string supabasePath, FileOptions options, UploadProgressChangedEventHandler onProgress = null)
+        private async Task<string> UploadOrUpdate(string localPath, string supabasePath, FileOptions options, EventHandler<float> onProgress = null)
         {
-            var tsc = new TaskCompletionSource<string>();
-
-            WebClient client = new WebClient();
-            Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
-
-            foreach (var header in Headers)
-                client.Headers.Add(header.Key, header.Value);
-
-            client.Headers.Add("cache-control", $"max-age={options.CacheControl}");
-            client.Headers.Add("content-type", options.ContentType);
-
-            if (options.Upsert)
+            using (var client = new HttpClient())
             {
-                client.Headers.Add("x-upsert", options.Upsert.ToString().ToLower());
-            }
+                Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
 
-            if (onProgress != null)
-            {
-                client.UploadProgressChanged += onProgress;
-            }
+                var headers = new Dictionary<string, string>(Headers);
 
-            client.UploadFileCompleted += (sender, args) =>
-            {
-                if (args.Error != null)
+                headers.Add("cache-control", $"max-age={options.CacheControl}");
+                headers.Add("content-type", options.ContentType);
+
+                if (options.Upsert)
                 {
-                    tsc.SetException(args.Error);
+                    headers.Add("x-upsert", options.Upsert.ToString().ToLower());
                 }
-                else
+
+                var progress = new Progress<float>();
+
+                if (onProgress != null)
                 {
-                    tsc.SetResult(GetFinalPath(supabasePath));
+                    progress.ProgressChanged += onProgress;
                 }
-            };
 
-            client.UploadFileAsync(uri, localPath);
+                await client.UploadFileAsync(uri, localPath, headers, progress);
 
-            return tsc.Task;
+                return GetFinalPath(supabasePath);
+            }
         }
 
-        private Task<string> UploadOrUpdate(byte[] data, string supabasePath, FileOptions options, UploadProgressChangedEventHandler onProgress = null)
+        private async Task<string> UploadOrUpdate(byte[] data, string supabasePath, FileOptions options, EventHandler<float> onProgress = null)
         {
-            var tsc = new TaskCompletionSource<string>();
-
-
-            WebClient client = new WebClient();
-            Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
-
-            foreach (var header in Headers)
-                client.Headers.Add(header.Key, header.Value);
-
-            client.Headers.Add("cache-control", $"max-age={options.CacheControl}");
-            client.Headers.Add("content-type", options.ContentType);
-
-            if (options.Upsert)
+            using (var client = new HttpClient())
             {
-                client.Headers.Add("x-upsert", options.Upsert.ToString());
-            }
+                Uri uri = new Uri($"{Url}/object/{GetFinalPath(supabasePath)}");
 
-            if (onProgress != null)
-            {
-                client.UploadProgressChanged += onProgress;
-            }
+                var headers = new Dictionary<string, string>(Headers);
 
-            client.UploadDataCompleted += (sender, args) =>
-            {
-                if (args.Error != null)
+                headers.Add("cache-control", $"max-age={options.CacheControl}");
+                headers.Add("content-type", options.ContentType);
+
+                if (options.Upsert)
                 {
-                    tsc.SetException(args.Error);
+                    headers.Add("x-upsert", options.Upsert.ToString().ToLower());
                 }
-                else
+
+                var progress = new Progress<float>();
+
+                if (onProgress != null)
                 {
-                    tsc.SetResult(GetFinalPath(supabasePath));
+                    progress.ProgressChanged += onProgress;
                 }
-            };
 
-            client.UploadDataAsync(uri, data);
+                await client.UploadBytesAsync(uri, data, headers, progress);
 
-            return tsc.Task;
+                return GetFinalPath(supabasePath);
+            }
         }
 
         private string GetFinalPath(string path) => $"{BucketId}/{path}";
